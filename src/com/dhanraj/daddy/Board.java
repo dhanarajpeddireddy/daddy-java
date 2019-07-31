@@ -16,7 +16,7 @@ public class Board {
         boardPlaces[1].setLinks(0, 2, 4, 7);
         boardPlaces[1].setHorizontalMiddle(true);
         boardPlaces[2].setLinks(1, 0, 14, 23);
-        boardPlaces[9].setLinks(0, 21, 10, 11);
+        boardPlaces[9].setLinks( 10, 11,0,21);
         boardPlaces[9].setVerticleMiddle(true);
         boardPlaces[14].setLinks(13, 12,2,23);
         boardPlaces[14].setVerticleMiddle(true);
