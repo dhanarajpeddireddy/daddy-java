@@ -1,5 +1,4 @@
 package com.dhanraj.daddy;
-
 import java.util.List;
 
 public class Controller {
@@ -33,15 +32,14 @@ public class Controller {
     }
 
 
-    public Response setPlace(int input_place,Player currentPlayer) {
+    public Response setPlace(int input_place) {
          response=new Response();
-        if (input_place<24 && input_place>=0)
+        if (input_place<=constants.place_ends && input_place>=constants.place_starts)
         {
             if (!board.getBordPlace(input_place).isOcupied) {
                 Place place = board.getBordPlace(input_place);
                 place.setOcupiedPlayer(currentPlayer);
-                currentPlayer.totalCoinsOnBoard++;
-                currentPlayer.totalCoins--;
+                currentPlayer.coinsOnBoard++;
                 response.status=true;
                 allSuccess=true;
                 return response;
@@ -49,13 +47,13 @@ public class Controller {
             else
             {
                 response.status=false;
-                response.setMsg("value is already selected");
+                response.setMsg(constants.place_notAvialable);
                 allSuccess=false;
                 return response;
             }
         }
         response.status=false;
-        response.setMsg("Please choose values between 0 and 24");
+        response.setMsg(constants.choose_betweenRange);
         allSuccess=false;
         return response;
     }
@@ -67,14 +65,14 @@ public class Controller {
 
     public Response isDaddyOccure(int input_place) {
         response=new Response();
-        checkDaddy(input_place,"v");
+        checkDaddy(input_place,constants.v_tag);
         if (response.status)
         {
             return response;
         }
         else
         {
-            checkDaddy(input_place,"h");
+            checkDaddy(input_place,constants.h_tag);
 
         }
         return response;
@@ -105,13 +103,13 @@ public class Controller {
     public Response checkRemoveCoins() {
         response=new Response();
       Player opponent=getOpponentPlayer();
-      if (opponent.totalCoinsOnBoard- opponent.getDaddyPlacesLength()>0)
+      if (opponent.coinsOnBoard- opponent.getDaddyPlacesLength()>0)
         {
             response.status=true;
             return response;
         }
       response.status=false;
-      response.setMsg("sorry you dont have valid opponent  coins for remove ");
+      response.setMsg(constants.noCoinsFor_remove);
         return response;
     }
 
@@ -123,25 +121,27 @@ public class Controller {
                 {
                     response.status = true;
                     board.getBordPlace(input_removeplace).setUnOcupied();
+                    getOpponentPlayer().coinsOnBoard--;
+                    getOpponentPlayer().removedCoins++;
                     return response;
                 }
                 else
                 {
                     response.status = false;
-                    response.setMsg("Daddy place you cont remove");
+                    response.setMsg(constants.daddy_place);
                     return response;
                 }
             }
         }
         else
         {
-            response.setMsg("place is empty");
+            response.setMsg(constants.empty_place_remove);
             response.status=false;
             return response;
         }
 
         response.status=false;
-        response.setMsg("Remove only opponent coin");
+        response.setMsg(constants.remove_opponent);
         return response;
     }
 
@@ -156,23 +156,23 @@ public class Controller {
                         return response;
                     } else {
                         response.status = false;
-                        response.setMsg("choose unocupied place");
+                        response.setMsg(constants.ocupied_place);
                         return response;
                     }
 
                 } else {
                     response.status = false;
-                    response.setMsg("choose Wrong place");
+                    response.setMsg(constants.wrong_place);
                     return response;
                 }
             } else {
                 response.status = false;
-                response.setMsg("choose your coin");
+                response.setMsg(constants.move_yourCoin);
                 return response;
             }
         }
         response.status = false;
-        response.setMsg("choose your coin");
+        response.setMsg(constants.move_yourCoin);
         return response;
     }
 
@@ -182,13 +182,45 @@ public class Controller {
     }
 
     public void makeMove(int input_source, int input_destination) {
-
         board.getBordPlace(input_source).setUnOcupied();
         board.getBordPlace(input_destination).setOcupiedPlayer(getCurrentPlayer());
         if (getCurrentPlayer().getDaddyPlaces().contains(input_source))
         {
-            //todo remove places from dady Places list
+            for(List list:getCurrentPlayer().dadyPlacesList)
+            {
+                if (list.contains(input_source))
+                {
+                    getCurrentPlayer().dadyPlacesList.remove(list);
+                    break;
+                }
+            }
         }
 
     }
+
+    public String getGamePhase(String phase) {
+        String gamephase=phase;
+        if (gamephase.equals(constants.phase_move))
+        {
+            phase=constants.phase_move;
+        }
+
+       else if (gamephase.equals(constants.phase_place)&& currentPlayer.totalCoins-(currentPlayer.removedCoins+currentPlayer.coinsOnBoard)>0)
+        {
+            phase=constants.phase_place;
+        }
+        else
+        {
+            gamephase=constants.phase_move;
+        }
+
+        return gamephase;
+    }
+    public   boolean isGameover() {
+        if (getOpponentPlayer().coinsOnBoard==constants.min_coins)
+            return true;
+        return false;
+    }
+
+
 }

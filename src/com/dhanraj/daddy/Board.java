@@ -1,7 +1,7 @@
 package com.dhanraj.daddy;
 public class Board {
 
-    static int totalPlaces = 24;
+    static int totalPlaces = constants.total_places;
     Place[] boardPlaces;
 
 

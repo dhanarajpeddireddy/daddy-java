@@ -5,44 +5,53 @@ import java.util.List;
 
 public class Player {
     String symbol=null,name;
-    int totalCoinsOnBoard=0;
-    List dadyPlaces;
-    int totalCoins=9;
+    public ArrayList<List<Integer>> dadyPlacesList;
+    public int totalCoins=constants.totalCoins,removedCoins=constants.remove_initial,coinsOnBoard=constants.onBord_initial;
 
 
     public void setDadyPlaces(int[] dadyPlaces)
     {
+        List<Integer> daddyPlaces=new ArrayList();
         for(int place :dadyPlaces)
         {
-            if (!this.dadyPlaces.contains(place))
+            if (!this.dadyPlacesList.contains(place))
             {
-               this.dadyPlaces.add(place);
+                daddyPlaces.add(place);
             }
         }
+        dadyPlacesList.add(daddyPlaces);
+
     }
 
     public int getDaddyPlacesLength()
     {
-        return dadyPlaces.size();
+        int length=0;
+        for (List daddyPlaces:dadyPlacesList)
+        {
+            length+=daddyPlaces.size();
+        }
+        return length;
     }
 
     public List getDaddyPlaces()
     {
-        return dadyPlaces;
+        List<Integer> daddyplaces=new ArrayList();
+        for (List<Integer> dadyPlaces:dadyPlacesList)
+        {
+            for(int place :dadyPlaces)
+            {
+               daddyplaces.add(place);
+            }
+        }
+        return daddyplaces;
     }
 
-    public int getTotalCoinsOnBoard() {
-        return totalCoinsOnBoard;
-    }
 
-    public void setTotalCoinsOnBoard(int totalCoinsOnBoard) {
-        this.totalCoinsOnBoard = totalCoinsOnBoard;
-    }
 
     public Player(String symbol,String name) {
         this.symbol = symbol;
         this.name=name;
-        dadyPlaces=new ArrayList();
+        dadyPlacesList=new ArrayList();
     }
 
     public String getSymbol() {
