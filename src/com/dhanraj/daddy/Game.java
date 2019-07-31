@@ -3,79 +3,126 @@ package com.dhanraj.daddy;
 import java.util.Scanner;
 
 public class Game {
+ static    Board b;
+ static Player p1,p2,currentPlayer;
+ static Controller controller;
+ static Scanner scanner;
+   static Response response;
 
-static  Bord bord;static   Game game;
-static Player currentPlayer,opponentPlayer,swap;
-static boolean flag=true;
-    public Game() {
-        bord=new Bord();
-        Player player1=new Player("1","dana",bord);
-        Player player2=new Player("2","arjun",bord);
-        currentPlayer=player1;
-        opponentPlayer=player2;
+public static void main(String[] args)
+{
+    scanner=new Scanner(System.in);
+    b=new Board();
+    p1=new Player("1","arjun");
+    p2=new Player("2","naga");
+    controller=new Controller(p1,p2,b);
+    startGame();
+
+}
+
+    private static void startGame() {
+        b.displayBoard();
+        controller.setCurrentPlayer();
+        currentPlayer=controller.getCurrentPlayer();
+        if (currentPlayer.totalCoins>0)
+    {
+       placing();
+    }
+        else
+        {
+           moving();
+        }
     }
 
-    public static void main(String ags[]) {
-       game = new Game();
-        boolean gameStatus=false;
+    private static boolean isGameover() {
+    boolean flag=false;
+    return flag;
+    }
 
-        do {
-            gameStatus=game.runGame(game);
+    private static void moving() {
+        Controller.showMessage(currentPlayer.name+" turns\n move your coin");
+        Controller.showMessage("Choose Source");
+        int input_source=scanner.nextInt();
+        Controller.showMessage("Choose Destination");
+        int input_destination=scanner.nextInt();
+        response=controller.checkMovePlaces(input_source,input_destination);
+        if (response.status)
+        {
+          controller.makeMove(input_source,input_destination);
+          checkDaddy(input_destination);
 
-        }while (!gameStatus);
+        }
+        else
+        {
+            Controller.showMessage(currentPlayer.name+" "+response.getMsg());
+            moving();
+        }
 
 
     }
 
-    private boolean runGame(Game game) {
-        boolean flag=false;
-        do {
-            bord.displayBord();
-            System.out.println(currentPlayer.name + " choice ");
-            System.out.println(currentPlayer.remainPicks + " yours ");
-            System.out.println(opponentPlayer.remainPicks + " opponents ");
-            int row = game.read("Enter row position : ");
-            int column = game.read("Enter column position : ");
-            position position = new position(row, column);
-            Box b = bord.getBoxRow(position);
-            currentPlayer.placeCoin(new position(row, column));
-            if (currentPlayer.remainPicks <= 7)
+    private static void placing() {
+        Controller.showMessage(currentPlayer.name+" turns\nChoose one place");
+        int input_place=scanner.nextInt();
+        response=controller.setPlace(input_place,currentPlayer);
+        if (response.status)
+        {
+            if (currentPlayer.totalCoinsOnBoard>=3)
+                checkDaddy(input_place);
+            else
             {
-                if (currentPlayer.checkDaddy(position)) {
-                    boolean removeStatus = false;
-                    do {
-                        bord.displayBord();
-                        System.out.println("Daddy for " + currentPlayer.name + "\n" + "Remove " + opponentPlayer.name + " Coin");
-                        row = game.read("Enter opponent coin row position : ");
-                        column = game.read("Enter opponent coin column position : ");
-                        position = new position(row, column);
-                        if (currentPlayer.removeOpponentCoin(opponentPlayer, position)) {
-                            System.out.println(opponentPlayer.name + " Coin removed Success.");
-                            removeStatus = true;
-                        } else
-                            System.out.println("you can remove only " + opponentPlayer.name + " Coins not in daddy");
+                startGame();
+            }
 
-                    } while (!removeStatus);
+
+        }
+        else
+        {
+            Controller.showMessage(response.getMsg());
+            placing();
+        }
+    }
+
+    private static void checkDaddy(int input_place) {
+
+            response= controller.isDaddyOccure(input_place);
+            if (response.status)
+            {
+                Controller.showMessage(response.msg +" Daay Congrats "+currentPlayer.name);
+                response=  controller.checkRemoveCoins();
+                if (response.status)
+                {
+                    removeCoin();
 
                 }
+                else
+                {
+                    Controller.showMessage(response.msg +"  "+currentPlayer.name);
+
+                    startGame();
+                }
+            }
+            else
+                startGame();
+
+
+    }
+
+    private static void removeCoin() {
+        Controller.showMessage("Enter opponent coin place for remove");
+        int input_Removeplace=scanner.nextInt();
+        response=controller.removeCoin(input_Removeplace);
+        if (response.status)
+        {
+            Controller.showMessage("removed sucessfully");
+            startGame();
         }
-                currentPlayer.setRemainPicks(currentPlayer.remainPicks - 1);
-                swap = currentPlayer;
-                currentPlayer = opponentPlayer;
-                opponentPlayer = swap;
+        else
+        {
+            Controller.showMessage(response.getMsg());
+            removeCoin();
 
-        }while (currentPlayer.remainPicks != 0) ;
-
-
-        return flag;
+        }
     }
-
-    public  int read(String message) {
-        System.out.println(message);
-        Scanner s=new Scanner(System.in);
-        int value=Integer.parseInt(s.next());
-        return value;
-    }
-
 
 }
